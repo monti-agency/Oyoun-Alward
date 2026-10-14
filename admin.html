@@ -209,7 +209,7 @@ dialog::backdrop{background:rgba(42,12,22,.62)}
 /* ============ Supabase: Project Settings → API ============
    Paste your project's URL and anon key below (the same two values go in index.html, search YOUR_SUPABASE_URL).
    One-time setup: run supabase.sql in the SQL editor (put the owner's email in it first), then Authentication → Add user (same email + a password). */
-window.OA_SUPABASE = { url: 'https://pdjihizxxhbtmwukddjo.supabase.co', anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkamloaXp4eGhidG13dWtkZGpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE5ODA2NjUsImV4cCI6MjEwNzU1NjY2NX0.tf8UrhnUmQGOOqtc12FybGG84ZoZd1CadHUcB5WK_mw' };
+window.OA_SUPABASE = { url: 'YOUR_SUPABASE_URL', anonKey: 'YOUR_SUPABASE_ANON_KEY' };
 </script>
 <script>
 (() => {
@@ -403,7 +403,7 @@ async function shrink(file) {
 }
 async function uploadBlob(blob, name) {
   const r = await api(`/storage/v1/object/${BUCKET}/${name}`, { method: 'POST', headers: { 'Content-Type': blob.type, 'x-upsert': 'false' }, body: blob });
-  if (!r.ok) throw new Error('upload'); return `${BASE}/storage/v1/object/public/${BUCKET}/${name}`;
+  if (!r.ok) { let m = ''; try { const j = await r.json(); m = j.message || j.error || ''; } catch (e) {} const er = new Error('upload'); er.info = r.status + (m ? ' · ' + m : ''); throw er; } return `${BASE}/storage/v1/object/public/${BUCKET}/${name}`;
 }
 $('#pickImg').addEventListener('click', () => $('#file').click());
 $('#file').addEventListener('change', async function () {
@@ -437,7 +437,7 @@ async function importFromSite(btn) {
     fillSettings(); render(); toast(`تم استيراد ${out.length} منتج. اضغط «نشر التغييرات» لحفظها.`);
   } catch (e) {
     btn.disabled = false; btn.textContent = label;
-    toast(e.message === 'upload' ? 'تعذّر رفع الصور. تأكد من تشغيل supabase.sql (مخزن الصور product-images) وحاول مرة ثانية.' : 'تعذّر قراءة index.html. افتح اللوحة من نفس مجلد الموقع.', true);
+    toast(e.message === 'upload' ? 'تعذّر رفع الصور (' + (e.info || '') + '). تأكد من تشغيل supabase.sql (مخزن الصور oyoun-images).' : 'تعذّر قراءة index.html. افتح اللوحة من نفس مجلد الموقع.', true);
   }
 }
 
